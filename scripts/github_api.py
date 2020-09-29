@@ -18,7 +18,7 @@ def check_rate_limit(response):
         
 
 def make_request(path):
-    url = f"{BASE_URL}/{PATH}"
+    url = f"{BASE_URL}/{path}"
     while True:
         response = get(url, headers=AUTH)
         if check_rate_limit(response):
