@@ -21,5 +21,5 @@ For the `GITHUB_OAUTH_TOKEN`, follow this [steps](https://docs.github.com/en/git
 If everything is ok with your installation, run this command on the terminal:
 
 ```shell
-make
+python scripts/main.py
 ```
