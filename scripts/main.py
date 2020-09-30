@@ -1,8 +1,8 @@
-from files import save_file, read_from_file
+from analyze import analyze
+from files import read_from_file, save_file
 from github_api import make_request
-from tqdm import tqdm
 
-PATH = 'search/repositories?q=awesome+'
+PATH = "search/repositories?q=awesome+"
 LANGUAGES = [
     "Javascript",
     "Python",
@@ -26,39 +26,48 @@ LANGUAGES = [
     "Haskell",
     "Julia",
 ]
+
+TOPIC_SEARCH = {"C#": "csharp", "C++": "cpp", "C": "c", "R": "r"}
+
 PER_PAGE = 100
+LIMIT_OF_SEARCH = 10
+
 
 def get_total_count(language):
-    path_with_query = PATH + language
-    
-    data = make_request(path_with_query)
-    return data['total_count']
+    data = make_request(language)
+    return data["total_count"]
+
 
 def get_number_of_pages(language):
     total_count = get_total_count(language)
-    pages = (total_count // PER_PAGE) + 1
-    return pages
+    pages = (total_count // PER_PAGE) + 1 if total_count >= 100 else 2
+    return pages if pages <= LIMIT_OF_SEARCH else LIMIT_OF_SEARCH + 1
+
+
+def add_topic(url, language):
+    if TOPIC_SEARCH.get(language):
+        topic = TOPIC_SEARCH.get(language)
+        url = url + f"+topic:{topic}"
+    return url
+
 
 def get_repositories(language):
-    pages = get_number_of_pages(lang)
+    path_with_query = PATH + language
+    path_with_query = add_topic(path_with_query, language)
+    pages = get_number_of_pages(path_with_query)
     lang_data = []
-    for page in (1, pages):
-        path_with_query = PATH + language
+    for page in range(1, pages):
         url = f"{path_with_query}&per_page={PER_PAGE}&page={page}"
         data = make_request(url)
-        if not data.get('items'):
-            pass
-        else:
-            lang_data += data.get('items')
+        lang_data += data.get("items", [])
     return lang_data
 
+
 if __name__ == "__main__":
-    for lang in tqdm(LANGUAGES):
-        print(lang)
+    for lang in LANGUAGES:
         filename = f"langs-json/{lang}.json"
-        saved_data = read_from_file(filename)
-        if not saved_data:
-            lang_data = get_repositories(lang)
-            save_file(lang_data, filename)
-        else:
-            pass
+        data = read_from_file(filename)
+        if not data:
+            data = get_repositories(lang)
+            save_file(data, filename)
+        analyze(lang, data)
