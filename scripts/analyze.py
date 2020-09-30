@@ -37,7 +37,7 @@ def reports(results):
     print(f"Total of stars: {results['stars']}")
     print(f"Total of issues: {results['issues']}")
     print(f"Total of forks: {results['forks']}")
-    print(f"Total of forks: {results['watchers']}")
+    print(f"Total of watchers: {results['watchers']}")
     print("*" * 50)
 
 
