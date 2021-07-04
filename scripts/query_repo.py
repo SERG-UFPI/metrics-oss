@@ -1,5 +1,4 @@
-from pprint import pprint
-
+from db import add_repos_to_db
 from github_api import make_request
 
 PER_PAGE = 100
@@ -33,4 +32,6 @@ if __name__ == "__main__":
             print("Exiting")
             break
         result = query_repos(query)
-        pprint(result)
+        print("Saving results...")
+        add_repos_to_db(result)
+        print("Results saved into database...")
