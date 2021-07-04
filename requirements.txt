@@ -3,3 +3,5 @@ black==20.8b1
 isort==5.5.1
 requests==2.24.0
 tdqm==0.0.1
+SQLAlchemy==1.4.20
+ipdb
