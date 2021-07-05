@@ -56,7 +56,7 @@ def get_repositories(language):
     path_with_query = add_topic(path_with_query, language)
     pages = get_number_of_pages(path_with_query)
     lang_data = []
-    for page in range(1, pages):
+    for page in range(1, pages + 1):
         url = f"{path_with_query}&per_page={PER_PAGE}&page={page}"
         data = make_request(url)
         lang_data += data.get("items", [])

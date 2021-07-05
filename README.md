@@ -23,3 +23,11 @@ If everything is ok with your installation, run this command on the terminal:
 ```shell
 python scripts/main.py
 ```
+
+To query something specific about repositories use this command:
+
+```shell
+python scripts/query_repo.py
+```
+
+It will prompt a help text and an example of what should be the query string
