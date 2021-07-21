@@ -4,8 +4,8 @@ from typing import Text
 
 from sqlalchemy import BigInteger, Boolean, Column, Float, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
 
 Base = declarative_base()
@@ -94,16 +94,19 @@ class Repository(Base):
         self.default_branch = kwargs.get("default_branch")
         self.score = kwargs.get("score")
 
+
 class CloneInfo(Base):
     __tablename__ = "clone_info"
     repository_id = Column(Integer, ForeignKey("repository.id"))
-    repository = relationship("Repository", backref=backref("clone", uselist=False)) # One to One relationship
+    repository = relationship(
+        "Repository", backref=backref("clone", uselist=False)
+    )  # One to One relationship
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
     error = Column(Text)
 
     def __init__(self, **kwargs):
-        self.repository_id = kwargs.get('repository_id')
-        self.created_at = kwargs.get('created_at', datetime.datetime.utcnow())
-        self.updated_at = kwargs.get('updated_at', datetime.datetime.utcnow())
-        self.error = kwargs.get('error', '')
+        self.repository_id = kwargs.get("repository_id")
+        self.created_at = kwargs.get("created_at", datetime.datetime.utcnow())
+        self.updated_at = kwargs.get("updated_at", datetime.datetime.utcnow())
+        self.error = kwargs.get("error", "")
