@@ -45,3 +45,19 @@ def add_clone_info(repo_id: int, error: str):
     session.add(info)
 
     commit_session(session)
+
+def query_clone_info(repo_id: int, session: Session = None) -> CloneInfo:
+    if session is None:
+        session = create_connection()
+
+    return session.query(CloneInfo).filter(CloneInfo.repository_id==repo_id).first()
+
+def update_clone_info(repo_id: int, error: str = "") -> None:
+    session = create_connection()
+
+    info = query_clone_info(repo_id, session)
+
+    info.error = error
+    info.updated_at = datetime.datetime.utcnow()
+
+    commit_session(session)
