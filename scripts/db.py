@@ -1,19 +1,21 @@
 import datetime
 from typing import List
 
+from sqlalchemy.orm.session import Session
+
 from models import Base, CloneInfo, Repository
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-def create_connection():
+def create_connection() -> Session:
     engine = create_engine("sqlite:///db.sqlite3")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     return Session()
 
 
-def commit_session(self, session):
+def commit_session(self, session) -> None:
     try:
         session.commit()
     except Exception as e:
@@ -22,7 +24,7 @@ def commit_session(self, session):
     session.close()
 
 
-def add_repos_to_db(repos: List):
+def add_repos_to_db(repos: List) -> None:
     session = create_connection()
 
     bulk_repos = [Repository(**repo) for repo in repos]
@@ -31,7 +33,7 @@ def add_repos_to_db(repos: List):
     commit_session(session)
 
 
-def add_clone_info(repo_id: int, error: str):
+def add_clone_info(repo_id: int, error: str) -> None:
     session = create_connection()
 
     clone_data = {
