@@ -1,16 +1,23 @@
 import os
 
-def clone_repo(onwer, repository):
-    path = "../tmp/{0}/{1}".format(onwer, repository)
+from db import update_clone_info
+
+
+def clone_repo(owner, repository, repo_id):
+    path = "../tmp/{0}/{1}".format(owner, repository)
 
     if not os.path.exists(path):
         os.makedirs(path)
 
-    command = "perceval git https://github.com/{0}/{1}.git --git-path {2}.git > {2}.json".format(onwer, repository, path)
+    command = "perceval git https://github.com/{0}/{1}.git --git-path {2}.git > {2}.json".format(
+        owner, repository, path
+    )
 
-    os.system(command)
+    error = ""
 
+    try:
+        os.system(command)
+    except Exception as e:
+        error = str(e)
 
-if __name__ == "__main__":
-    clone_repo("eduardocesb", "algoritmos")
-    clone_repo("luchiago", "tse-awesome-project")
+    update_clone_info(repo_id, error)
