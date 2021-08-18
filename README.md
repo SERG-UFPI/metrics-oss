@@ -10,11 +10,17 @@ First, verify if you have Python 3.6 or higher installed and pip
 
 Create a virtualenv following this [tutorial](https://tutorial.djangogirls.org/en/django_installation/#virtual-environment)
 
-After that, with the virtualenv activated, run this command: `pip install -r requirements.txt`
+After that, with the virtualenv activated, run this command: `pip install -r requirements.txt -r requirements_dev.txt`
 
 Finally, run `cp .env.sample .env` and fill the `.env` file with the required info
 
 For the `GITHUB_OAUTH_TOKEN`, follow this [steps](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+
+## Upgrading dependencies
+
+With the virtualenv activated, first change or add the package and the version you want to install in the file `requirements.in`
+
+After that, run the command in the root dir: `pip-compile --output-file=requirements.txt requirements.in`
 
 ## Running
 
