@@ -14,7 +14,7 @@ def create_connection() -> Session:
     return Session()
 
 
-def commit_session(self, session) -> None:
+def commit_session(session) -> None:
     try:
         session.commit()
     except Exception as e:

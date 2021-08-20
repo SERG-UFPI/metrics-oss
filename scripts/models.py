@@ -1,8 +1,7 @@
 import datetime
 import json
-from typing import Text
 
-from sqlalchemy import BigInteger, Boolean, Column, Float, Integer, String
+from sqlalchemy import BigInteger, Boolean, Column, Float, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql.schema import ForeignKey
@@ -97,6 +96,7 @@ class Repository(Base):
 
 class CloneInfo(Base):
     __tablename__ = "clone_info"
+    repo_id = Column(BigInteger, primary_key=True)
     repository_id = Column(Integer, ForeignKey("repository.id"))
     repository = relationship(
         "Repository", backref=backref("clone", uselist=False)
@@ -106,6 +106,7 @@ class CloneInfo(Base):
     error = Column(Text)
 
     def __init__(self, **kwargs):
+        self.repo_id = kwargs.get("repository_id")
         self.repository_id = kwargs.get("repository_id")
         self.created_at = kwargs.get("created_at", datetime.datetime.utcnow())
         self.updated_at = kwargs.get("updated_at", datetime.datetime.utcnow())
