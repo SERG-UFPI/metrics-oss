@@ -1,10 +1,11 @@
 import os
 
 from db import update_clone_info
+from settings.settings import GITHUB_OAUTH_TOKEN
 
 
 def clone_repo(owner, repository, repo_id):
-    path = "../tmp/{0}/{1}".format(owner, repository)
+    path = "./tmp/{0}/{1}".format(owner, repository)
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -13,7 +14,10 @@ def clone_repo(owner, repository, repo_id):
         f"perceval git https://github.com/{owner}/{repository}.git "
         f"--git-path {path}.git > {path}-git.json"
     )
-    command_github = f"perceval github {owner} {repository} -o {path}-github.json"
+    command_github = (
+        f"perceval github {owner} {repository} -o "
+        f"{path}-github.json -t {GITHUB_OAUTH_TOKEN}"
+    )
 
     error = ""
 
