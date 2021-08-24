@@ -138,5 +138,8 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# Cloned repos
+tmp/
+
 # End of https://www.toptal.com/developers/gitignore/api/python
 
