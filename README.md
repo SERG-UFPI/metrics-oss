@@ -1,39 +1,67 @@
-# Topics in Software Engineer Final Project
+# Dataset de Repositórios OSS (Open Source Software)
 
-This repository contains python scripts to make requests, retrieve and process some data from Github with [Github API](https://docs.github.com/en/rest)
+Este repositório contém scripts python para montagem de um dataset de repositórios OSS utilizando para tanto a [API do Github](https://docs.github.com/en/rest)
 
-It was made with REST API V3 from Github, Python 3.8 and requests lib
+Foi feito utilizando as seguintes tecnologias:
 
-## Setup
+- [Python 3.8](https://www.python.org/)
+- [SQLite3](https://www.sqlite.org/index.html)
+- [Perceval](https://github.com/chaoss/grimoirelab-perceval)
+- [Requests](https://docs.python-requests.org/en/master/)
+- [SQLAlchemy](https://www.sqlalchemy.org/)
 
-First, verify if you have Python 3.6 or higher installed and pip
+## Configuração
 
-Create a virtualenv following this [tutorial](https://tutorial.djangogirls.org/en/django_installation/#virtual-environment)
+Verifique se você tem o SQLite3 instalado na sua máquina local. Caso contrário, siga o passo a passo para instalação [aqui](https://www.servermania.com/kb/articles/install-sqlite/)
 
-After that, with the virtualenv activated, run this command: `pip install -r requirements.txt -r requirements_dev.txt`
+Verifique se você tem a versão 3.8 instalada do Python na sua máquina local. Caso não tenha, siga este [tutorial](https://tutorial.djangogirls.org/en/installation/#python)
 
-Finally, run `cp .env.sample .env` and fill the `.env` file with the required info
+Se tudo estiver ok, teste estes dois comandos em seu terminal e veja se tem um output parecido:
 
-For the `GITHUB_OAUTH_TOKEN`, follow this [steps](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+```sh
+$ python --version
+>>> Python 3.8.0
 
-## Upgrading dependencies
-
-With the virtualenv activated, first change or add the package and the version you want to install in the file `requirements.in`
-
-After that, run the command in the root dir: `pip-compile --output-file=requirements.txt requirements.in`
-
-## Running
-
-If everything is ok with your installation, run this command on the terminal:
-
-```shell
-python scripts/main.py
+$ pip --version
+>>> pip 21.0.1 from ~/.asdf/installs/python/3.8.0/lib/python3.8/site-packages/pip (python 3.8)
 ```
 
-To query something specific about repositories use this command:
+Após as checagens, crie uma virtualenv na pasta raiz do projeto seguindo este [tutorial](https://tutorial.djangogirls.org/en/django_installation/#virtual-environment). Crie com o nome `env` ou `venv` e após a conclusão, ative a virtualenv.
 
-```shell
-python scripts/query_repo.py
+Com a virtualenv ativada, execute o seguinte comando:
+
+```sh
+pip install -r requirements.txt -r requirments_dev.txt
 ```
 
-It will prompt a help text and an example of what should be the query string
+Logo todas as dependencias para o projeto serão instaladas
+
+Para finalizar, copie o `.env.sample` e cole com o nome `.env` na pasta raiz do projeto e preencha com a informação que está faltando
+
+Para a `GITHUB_OAUTH_TOKEN` siga estes [passos](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+
+## Atualizando dependências
+
+Com a virtualenv ativada, primeiro altere ou adicione a dependência e a versão que deseja instalar/atualizar no arquivo `requirments.in`
+
+Após isso, rode o comando no diretório raiz: `pip-compile --output-file=requirements.txt requirements.in`
+
+## Arquivos
+
+Uma simples explicação de cada arquivo contido no diretório `scripts`:
+
+- `clone_repo.py`: Nele fazemos o clone dos repositórios com ajuda do Perceval
+- `db.py`: Este arquivo contém funções úteis para comunicação com o banco de dados
+- `files.py`: Arquivo com funções para I/O com arquivos JSON
+- `github_api.py`: Script para comunicação com a API do Github
+- `models.py`: Arquivo que contém as tabelas do banco de dados
+- `query_repo.py`: Script que inicia a busca dos repositórios
+
+## Utilizando o projeto
+
+Se tudo estiver ok com a sua instalação você poderá utilizar os seguintes scripts:
+
+- Para buscar e salvar repositórios dado uma query de busca, rode este comando:
+`python scripts/query_repo.py`
+Irá aparecer um prompt com um texto de apoio de como deve ser a query de busca
+Para mais informações sobre as querys de busca de repositórios, siga a [documentação](https://docs.github.com/en/rest/reference/search)
