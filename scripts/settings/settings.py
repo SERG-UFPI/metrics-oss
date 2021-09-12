@@ -5,9 +5,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-keys = [os.getenv("GITHUB_OAUTH_TOKEN"), os.getenv("BASE_URL")]
-GITHUB_OAUTH_TOKEN, BASE_URL = keys
+keys = [
+    os.getenv("GITHUB_OAUTH_TOKEN"),
+    os.getenv("BASE_URL"),
+    os.getenv("ELASTIC_URL")
+]
+GITHUB_OAUTH_TOKEN, BASE_URL, ELASTIC_URL = keys
 if not all(keys):
-    msg = f"Missing key\nGITHUB_OAUTH_TOKEN: {GITHUB_OAUTH_TOKEN}\nBASE_URL: {BASE_URL}"
+    msg = f"Missing key\n" \
+        "GITHUB_OAUTH_TOKEN: {GITHUB_OAUTH_TOKEN}\n" \
+        "BASE_URL: {BASE_URL}\n" \
+        "ELASTIC_URL: {ELASTIC_URL}\n"
     raise Exception(msg)
 AUTH = {"Authorization": f"token {GITHUB_OAUTH_TOKEN}"}
