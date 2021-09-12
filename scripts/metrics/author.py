@@ -1,4 +1,5 @@
 import requests
+
 from ..interfaces import Author
 from ..settings.settings import ELASTIC_URL
 
