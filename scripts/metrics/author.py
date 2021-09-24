@@ -1,7 +1,5 @@
 import requests
-
-from ..interfaces import Author
-from ..settings.settings import ELASTIC_URL
+from interfaces import Author
 
 
 def get_author_metrics():
@@ -84,7 +82,7 @@ def get_author_metrics():
         },
     }
 
-    url = f"{ELASTIC_URL}git/_search"
+    url = "http://localhost:9200/git/_search"
 
     response = requests.post(url, json=body)
 
