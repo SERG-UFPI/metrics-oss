@@ -12,7 +12,7 @@ Base = declarative_base()
 
 class Repository(Base):
     __tablename__ = "repository"
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, primary_key=True, sqlite_on_conflict_primary_key="REPLACE")
     node_id = Column(String)
     name = Column(String)
     full_name = Column(String)

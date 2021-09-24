@@ -1,4 +1,3 @@
-from clone_repo import clone_repo as clone
 from db import add_repos_to_db
 from github_api import make_request
 
@@ -33,12 +32,6 @@ if __name__ == "__main__":
             print("Exiting")
             break
         result = query_repos(query)
-        print("Saving results...")
+        print("Saving the results...")
         add_repos_to_db(result)
         print("Results saved into database...")
-        print("Cloning the repos...")
-        for repo in result:
-            repo_id = repo.get("id")
-            owner, repo = repo.get("full_name").split("/")
-            print(f"Cloning the repo {owner}/{repo}")
-            clone(owner, repo, repo_id)
