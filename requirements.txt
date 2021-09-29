@@ -58,6 +58,8 @@ sqlalchemy==1.4.20
     # via -r requirements.in
 tomli==1.2.1
     # via pep517
+tqdm==4.62.3
+    # via -r requirements.in
 urllib3==1.25.11
     # via
     #   dulwich

@@ -1,3 +1,4 @@
+import tqdm
 from db import add_repos_to_db
 from github_api import make_request
 
@@ -17,7 +18,7 @@ def query_repos(query: str):
     path = f"{SEARCH_PATH}?q={query}"
     pages = get_number_of_pages(path)
     lang_query = []
-    for page in range(1, pages + 1):
+    for page in tqdm(range(1, pages + 1)):
         url = f"{path}&per_page={PER_PAGE}&page={page}"
         data = make_request(url)
         lang_query += data.get("items", [])
