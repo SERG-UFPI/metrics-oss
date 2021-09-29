@@ -3,3 +3,4 @@ requests==2.24.0
 SQLAlchemy==1.4.20
 perceval==0.17.9
 pip-tools==6.2.0
+tqdm==4.62.3

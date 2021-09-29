@@ -19,4 +19,5 @@ if not all(keys):
         f"ELASTIC_URL: {ELASTIC_URL}\n"
     )
     raise Exception(msg)
+
 AUTH = {"Authorization": f"token {GITHUB_OAUTH_TOKEN}"}
