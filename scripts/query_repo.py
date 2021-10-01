@@ -1,6 +1,7 @@
-import tqdm
+from clone_repo import clone_repo
 from db import add_repos_to_db
 from github_api import make_request
+from tqdm import tqdm
 
 PER_PAGE = 100
 LIMIT_OF_SEARCH = 10
@@ -25,6 +26,13 @@ def query_repos(query: str):
     return lang_query
 
 
+def clone_with_perceval(results: list) -> None:
+    for result in tqdm(results):
+        owner, repository = result.get("full_name", "").split("/")
+        id = result.get("id")
+        clone_repo(owner, repository, id)
+
+
 if __name__ == "__main__":
     while True:
         input_message = "Type your query string (example: language:java+stars:>=10000&sort=star&order=desc) or hit ENTER to exit:"
@@ -36,3 +44,6 @@ if __name__ == "__main__":
         print("Saving the results...")
         add_repos_to_db(result)
         print("Results saved into database...")
+        print("Cloning the repos with Perceval...")
+        clone_with_perceval(result)
+        print("Finished cloning with perceval...")
