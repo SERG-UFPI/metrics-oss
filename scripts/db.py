@@ -62,6 +62,22 @@ def get_all_repositories(session: Session = None):
     return session.query(Repository).all()
 
 
+def get_all_repos_given_clone_info(session: Session = None):
+    if session is None:
+        session = create_connection()
+
+    now = datetime.datetime.utcnow()
+    one_month_ago = now - datetime.timedelta(days=30)
+
+    return (
+        session.query(Repository)
+        .join(CloneInfo)
+        .filter(CloneInfo.repo_id == Repository.id)
+        .filter(CloneInfo.updated_at > one_month_ago)
+        .all()
+    )
+
+
 def update_clone_info(repo_id: int, error: str = "") -> None:
     session = create_connection()
 
