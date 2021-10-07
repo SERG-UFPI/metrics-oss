@@ -40,6 +40,8 @@ Para finalizar, copie o `.env.sample` e cole com o nome `.env` na pasta raiz do 
 
 Para a `GITHUB_OAUTH_TOKEN` siga estes [passos](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
 
+Se for utilizar mais de um token, preencha separado por virgulas como no exemplo do arquivo `.env.sample`. Caso contrário, apenas coloque o token.
+
 ## Atualizando dependências
 
 Com a virtualenv ativada, primeiro altere ou adicione a dependência e a versão que deseja instalar/atualizar no arquivo `requirments.in`
@@ -52,9 +54,11 @@ Uma simples explicação de cada arquivo contido no diretório `scripts`:
 
 - `clone_repo.py`: Nele fazemos o clone dos repositórios com ajuda do Perceval
 - `db.py`: Este arquivo contém funções úteis para comunicação com o banco de dados
+- `enrich_repo.py`: Este arquivo envia para o ElasticSearch dados enriquecidos
 - `files.py`: Arquivo com funções para I/O com arquivos JSON
 - `github_api.py`: Script para comunicação com a API do Github
 - `models.py`: Arquivo que contém as tabelas do banco de dados
+- `projects.py`: Gera o arquivo `projects.json` para o GrimoireLab
 - `query_repo.py`: Script que inicia a busca dos repositórios
 
 ## Utilizando o projeto

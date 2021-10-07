@@ -20,4 +20,5 @@ if not all(keys):
     )
     raise Exception(msg)
 
-AUTH = {"Authorization": f"token {GITHUB_OAUTH_TOKEN}"}
+TOKENS = GITHUB_OAUTH_TOKEN.split(",")
+AUTH = {"Authorization": f"token {TOKENS[0]}"}

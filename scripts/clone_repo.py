@@ -1,11 +1,13 @@
 import os
+from random import choice
 
 from db import update_clone_info
-from settings.settings import GITHUB_OAUTH_TOKEN
+from settings.settings import TOKENS
 
 
 def clone_repo(owner, repository, repo_id):
     path = "./tmp/{0}/{1}".format(owner, repository)
+    token = choice(TOKENS)
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -17,7 +19,7 @@ def clone_repo(owner, repository, repo_id):
     command_github = (
         f"perceval github {owner} {repository} "
         f"-o {path}/{repository}-github.json "
-        f"-t {GITHUB_OAUTH_TOKEN} "
+        f"-t {token} "
         f"--sleep-for-rate"
     )
 
