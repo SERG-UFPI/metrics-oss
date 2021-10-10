@@ -1,9 +1,9 @@
 import subprocess
 
 import requests
-import tqdm
 from db import get_all_repos_given_clone_info, update_clone_info
 from settings.settings import ELASTIC_URL, GITHUB_OAUTH_TOKEN, TOKENS
+from tqdm import tqdm
 
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
