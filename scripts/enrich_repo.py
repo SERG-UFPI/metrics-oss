@@ -77,8 +77,12 @@ def enrich_github(owner: str, repository: str) -> None:
 
 
 def enrich_repo(owner: str, repository: str) -> None:
-    enrich_git(owner=owner, repository=repository)
-    enrich_github(owner=owner, repository=repository)
+    try:
+        enrich_git(owner=owner, repository=repository)
+        enrich_github(owner=owner, repository=repository)
+    except Exception as e:
+        return str(e)
+    return ""
 
 
 def verify_elasticsearch() -> bool:
@@ -104,5 +108,5 @@ if __name__ == "__main__":
         print("Enrich some repos..")
         for repo in tqdm(repos):
             owner, repository = repo.full_name.split("/")
-            enrich_repo(owner, repository)
-            update_clone_info(repo.id)
+            error = enrich_repo(owner, repository)
+            update_clone_info(repo.id, error=error)
