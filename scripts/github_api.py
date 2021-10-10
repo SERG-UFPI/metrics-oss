@@ -24,5 +24,8 @@ def make_request(path):
     url = f"{BASE_URL}/{path}"
     while True:
         response = get(url, headers=AUTH)
+        # If isn't a status code in the range of 200-2xx
+        # Will raise an error
+        response.raise_for_status()
         if check_rate_limit(response):
             return response.json()
