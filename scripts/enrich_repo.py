@@ -82,9 +82,11 @@ def enrich_github(owner: str, repository: str) -> None:
 
 def enrich_repo(owner: str, repository: str) -> None:
     try:
+        print(f"Enriching repo {owner}/{repository}")
         enrich_git(owner=owner, repository=repository)
         enrich_github(owner=owner, repository=repository)
     except Exception as e:
+        print(f"Error {e}")
         return str(e)
     return ""
 
