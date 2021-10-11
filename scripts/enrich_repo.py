@@ -1,7 +1,11 @@
 import subprocess
 
 import requests
-from db import get_all_repos_given_clone_info, update_clone_info
+from db import (
+    get_all_repos_given_clone_info,
+    get_all_repos_without_clone_info,
+    update_clone_info,
+)
 from settings.settings import ELASTIC_URL, GITHUB_OAUTH_TOKEN, TOKENS
 from tqdm import tqdm
 
@@ -104,7 +108,7 @@ if __name__ == "__main__":
     """
     running_es = verify_elasticsearch()
     if running_es:
-        repos = get_all_repos_given_clone_info()
+        repos = get_all_repos_given_clone_info() + get_all_repos_without_clone_info()
         print("Enrich some repos..")
         for repo in tqdm(repos):
             owner, repository = repo.full_name.split("/")

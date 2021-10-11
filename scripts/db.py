@@ -5,6 +5,7 @@ from models import Base, CloneInfo, Repository
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql import exists
 
 
 def create_connection() -> Session:
@@ -55,27 +56,42 @@ def query_clone_info(repo_id: int, session: Session = None) -> CloneInfo:
     return session.query(CloneInfo).filter(CloneInfo.repository_id == repo_id).first()
 
 
-def get_all_repositories(session: Session = None):
+def get_all_repositories(session: Session = None) -> list:
     if session is None:
         session = create_connection()
 
     return session.query(Repository).all()
 
 
-def get_all_repos_given_clone_info(session: Session = None):
+def get_all_repos_given_clone_info(session: Session = None) -> list:
     if session is None:
         session = create_connection()
 
     now = datetime.datetime.utcnow()
     one_month_ago = now - datetime.timedelta(days=30)
 
-    return (
+    result = (
         session.query(Repository)
         .join(CloneInfo)
         .filter(CloneInfo.repo_id == Repository.id)
         .filter(CloneInfo.updated_at > one_month_ago)
         .all()
     )
+
+    return result
+
+
+def get_all_repos_without_clone_info(session: Session = None) -> list:
+    if session is None:
+        session = create_connection()
+
+    result = (
+        session.query(Repository)
+        .filter((~exists().where(Repository.id == CloneInfo.repo_id)))
+        .all()
+    )
+
+    return result
 
 
 def update_clone_info(repo_id: int, error: str = "") -> None:
