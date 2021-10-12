@@ -12,7 +12,8 @@ from tqdm import tqdm
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
 # the github token
-ERROR_KEYS = ["raise", "exception", "exceptions", "RetryError"]
+RETRY_KEYS = ["raise", "exception", "exceptions", "RetryError"]
+ERROR_KEYS = ["Error", "error", "fatal"]
 
 # This counter is to select which token will be used at the time
 # The maximum number is the size of the list of tokens
@@ -24,12 +25,15 @@ def get_token(next_token: bool = False) -> str:
         global use_token_counter
         if use_token_counter < len(GITHUB_OAUTH_TOKEN):
             use_token_counter += 1
+        if use_token_counter >= len(GITHUB_OAUTH_TOKEN):
+            use_token_counter = 0
     return TOKENS[use_token_counter]
 
 
-def enrich_git(owner: str, repository: str) -> None:
+def enrich_git(owner: str, repository: str) -> str:
     # Produce git and git_raw indexes from git repo
-    subprocess.run(
+    print(f"Enriching repo with Git {owner}/{repository}")
+    result = subprocess.run(
         [
             "p2o.py",
             "--enrich",
@@ -45,13 +49,16 @@ def enrich_git(owner: str, repository: str) -> None:
             f"https://github.com/{owner}/{repository}",
         ]
     )
+    log = result.stderr.decode("utf-8")
+    return log if any(error in log for error in ERROR_KEYS) else ""
 
 
-def enrich_github(owner: str, repository: str) -> None:
+def enrich_github(owner: str, repository: str) -> str:
     # Produce github and github_raw indexes from GitHub issues and prs
     # Do not use '--sleep-for-rate' in this case because we want to see the error
     next_token = False
     while True:
+        print(f"Enriching repo with Github {owner}/{repository}")
         token = get_token(next_token=next_token)
         result = subprocess.run(
             [
@@ -74,21 +81,22 @@ def enrich_github(owner: str, repository: str) -> None:
             capture_output=True,
         )
         log = result.stderr.decode("utf-8")
-        if any(error in log for error in ERROR_KEYS):
+        if any(error in log for error in RETRY_KEYS):
             next_token = True
         else:
             break
+    return log if any(error in log for error in ERROR_KEYS) else ""
 
 
 def enrich_repo(owner: str, repository: str) -> None:
     try:
-        print(f"Enriching repo {owner}/{repository}")
-        enrich_git(owner=owner, repository=repository)
-        enrich_github(owner=owner, repository=repository)
+        error_git = enrich_git(owner=owner, repository=repository)
+        error_github = enrich_github(owner=owner, repository=repository)
+        full_error = error_git + error_github
+        return full_error
     except Exception as e:
         print(f"Error {e}")
         return str(e)
-    return ""
 
 
 def verify_elasticsearch() -> bool:
