@@ -1,3 +1,4 @@
+import logging
 import subprocess
 
 import requests
@@ -19,6 +20,14 @@ ERROR_KEYS = ["Error", "error", "fatal"]
 # The maximum number is the size of the list of tokens
 use_token_counter = 0
 
+datetime_format = "%d-%b-%y %H:%M:%S"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s::%(levelname)s::%(message)s",
+    filename="enrich_repos.log",
+    datefmt=datetime_format,
+)
+
 
 def get_token(next_token: bool = False) -> str:
     if next_token:
@@ -32,8 +41,8 @@ def get_token(next_token: bool = False) -> str:
 
 def enrich_git(owner: str, repository: str) -> str:
     # Produce git and git_raw indexes from git repo
-    print(f"Enriching repo with Git {owner}/{repository}")
-    result = subprocess.run(
+    logging.info(f"Enriching repo with Git {owner}/{repository}")
+    result = subprocess.check_output(
         [
             "p2o.py",
             "--enrich",
@@ -47,9 +56,9 @@ def enrich_git(owner: str, repository: str) -> str:
             "--debug",
             "git",
             f"https://github.com/{owner}/{repository}",
-        ]
+        ],
     )
-    log = result.stderr.decode("utf-8")
+    log = result.decode("utf-8")
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
@@ -57,10 +66,11 @@ def enrich_github(owner: str, repository: str) -> str:
     # Produce github and github_raw indexes from GitHub issues and prs
     # Do not use '--sleep-for-rate' in this case because we want to see the error
     next_token = False
+    logging.info(f"Enriching repo with Github {owner}/{repository}")
     while True:
-        print(f"Enriching repo with Github {owner}/{repository}")
         token = get_token(next_token=next_token)
-        result = subprocess.run(
+        logging.info(f"Using token {token} to retrieve info from {owner}/{repository}")
+        result = subprocess.check_output(
             [
                 "p2o.py",
                 "--enrich",
@@ -78,9 +88,8 @@ def enrich_github(owner: str, repository: str) -> str:
                 "-t",
                 token,
             ],
-            capture_output=True,
         )
-        log = result.stderr.decode("utf-8")
+        log = result.decode("utf-8")
         if any(error in log for error in RETRY_KEYS):
             next_token = True
         else:
@@ -93,9 +102,12 @@ def enrich_repo(owner: str, repository: str) -> None:
         error_git = enrich_git(owner=owner, repository=repository)
         error_github = enrich_github(owner=owner, repository=repository)
         full_error = error_git + error_github
+        if full_error != "":
+            logging.info(f"Error for {owner}/{repository}")
+            logging.info(full_error)
         return full_error
     except Exception as e:
-        print(f"Error {e}")
+        logging.info(f"Error {e}")
         return str(e)
 
 
