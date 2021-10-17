@@ -141,5 +141,7 @@ dmypy.json
 # Cloned repos
 tmp/
 
-# End of https://www.toptal.com/developers/gitignore/api/python
+# Archive from perceval
+.perceval
 
+# End of https://www.toptal.com/developers/gitignore/api/python

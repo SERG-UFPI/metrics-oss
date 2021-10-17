@@ -2,18 +2,18 @@ import logging
 import subprocess
 
 import requests
+import os
 from db import (
     get_all_repos_given_clone_info,
     get_all_repos_without_clone_info,
     update_clone_info,
 )
-from settings.settings import ELASTIC_URL, GITHUB_OAUTH_TOKEN, TOKENS
+from settings.settings import ELASTIC_URL, GITHUB_OAUTH_TOKEN, TOKENS, HOME_PATH
 from tqdm import tqdm
 
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
 # the github token
-RETRY_KEYS = ["raise", "exception", "exceptions", "RetryError"]
 ERROR_KEYS = ["Error", "error", "fatal"]
 
 # This counter is to select which token will be used at the time
@@ -28,13 +28,19 @@ logging.basicConfig(
     datefmt=datetime_format,
 )
 
+def move_archive():
+    destination_path = './.perceval/'
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)
+    logging.info("Archiving here due to disk space")
+    command = f"cp -r {HOME_PATH}/* {destination_path} && rm -rf {HOME_PATH}"
+    os.system(command)
+
 
 def get_token(next_token: bool = False) -> str:
     if next_token:
         global use_token_counter
-        if use_token_counter < len(GITHUB_OAUTH_TOKEN):
             use_token_counter += 1
-        if use_token_counter >= len(GITHUB_OAUTH_TOKEN):
             use_token_counter = 0
     return TOKENS[use_token_counter]
 
@@ -105,6 +111,7 @@ def enrich_repo(owner: str, repository: str) -> None:
         if full_error != "":
             logging.info(f"Error for {owner}/{repository}")
             logging.info(full_error)
+        move_archive()
         return full_error
     except Exception as e:
         logging.info(f"Error {e}")
