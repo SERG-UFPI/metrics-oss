@@ -14,6 +14,7 @@ from tqdm import tqdm
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
 # the github token
+RETRY_KEYS = ["raise", "exception", "exceptions", "RetryError", "rate limit exceeded"]
 ERROR_KEYS = ["Error", "error", "fatal"]
 
 # This counter is to select which token will be used at the time
@@ -40,7 +41,9 @@ def move_archive():
 def get_token(next_token: bool = False) -> str:
     if next_token:
         global use_token_counter
+        if use_token_counter < len(TOKENS):
             use_token_counter += 1
+        if use_token_counter >= len(TOKENS):
             use_token_counter = 0
     return TOKENS[use_token_counter]
 
@@ -48,7 +51,7 @@ def get_token(next_token: bool = False) -> str:
 def enrich_git(owner: str, repository: str) -> str:
     # Produce git and git_raw indexes from git repo
     logging.info(f"Enriching repo with Git {owner}/{repository}")
-    result = subprocess.check_output(
+    result = subprocess.run(
         [
             "p2o.py",
             "--enrich",
@@ -63,8 +66,11 @@ def enrich_git(owner: str, repository: str) -> str:
             "git",
             f"https://github.com/{owner}/{repository}",
         ],
+        capture_output=True,
+        text=True,
     )
-    log = result.decode("utf-8")
+    log = result.stdout + result.stderr
+    print(log)
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
@@ -72,11 +78,13 @@ def enrich_github(owner: str, repository: str) -> str:
     # Produce github and github_raw indexes from GitHub issues and prs
     # Do not use '--sleep-for-rate' in this case because we want to see the error
     next_token = False
+    repeat = 0
     logging.info(f"Enriching repo with Github {owner}/{repository}")
     while True:
         token = get_token(next_token=next_token)
         logging.info(f"Using token {token} to retrieve info from {owner}/{repository}")
-        result = subprocess.check_output(
+        logging.info(f"In loop for {owner}/{repository} {repeat} times")
+        result = subprocess.run(
             [
                 "p2o.py",
                 "--enrich",
@@ -94,10 +102,14 @@ def enrich_github(owner: str, repository: str) -> str:
                 "-t",
                 token,
             ],
+            capture_output=True,
+            text=True,
         )
-        log = result.decode("utf-8")
+        log = result.stdout + result.stderr
+        print(log)
         if any(error in log for error in RETRY_KEYS):
             next_token = True
+            repeat += 1
         else:
             break
     return log if any(error in log for error in ERROR_KEYS) else ""

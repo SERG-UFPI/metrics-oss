@@ -74,7 +74,7 @@ def get_all_repos_given_clone_info(session: Session = None) -> list:
         session.query(Repository)
         .join(CloneInfo)
         .filter(CloneInfo.repo_id == Repository.id)
-        .filter(CloneInfo.updated_at > one_month_ago)
+        .filter((CloneInfo.updated_at < one_month_ago) | (CloneInfo.error != ""))
         .all()
     )
 

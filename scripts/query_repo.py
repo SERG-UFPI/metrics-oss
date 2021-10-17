@@ -17,7 +17,7 @@ def get_number_of_pages(path):
 
 def query_repos(query: str, limit: int):
     path = f"{SEARCH_PATH}?q={query}"
-    if limit <= PER_PAGE:
+    if limit <= PER_PAGE and limit != 0:
         pages = 1
         per_page = limit
     else:
@@ -47,7 +47,8 @@ if __name__ == "__main__":
         if query == "" or query is None:
             print("Exiting")
             break
-        limit = int(input("(Optional) Add an integer number limit of repositorys: "))
+        limit = input("(Optional) Add an integer number limit of repositorys: ")
+        limit = int(limit) if limit != "" else 0
         result = query_repos(query, limit)
         print("Saving the results...")
         add_repos_to_db(result)
