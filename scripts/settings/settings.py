@@ -18,7 +18,7 @@ if not all(keys):
         f"GITHUB_OAUTH_TOKEN: {GITHUB_OAUTH_TOKEN}\n"
         f"BASE_URL: {BASE_URL}\n"
         f"ELASTIC_URL: {ELASTIC_URL}\n"
-        F"HOME_PATH: {HOME_PATH}\n"
+        f"HOME_PATH: {HOME_PATH}\n"
     )
     raise Exception(msg)
 

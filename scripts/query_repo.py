@@ -47,7 +47,7 @@ if __name__ == "__main__":
         if query == "" or query is None:
             print("Exiting")
             break
-        limit = input("(Optional) Add an integer number limit of repositorys: ")
+        limit = input("(Optional) Add an integer number limit of repositories: ")
         limit = int(limit) if limit != "" else 0
         result = query_repos(query, limit)
         print("Saving the results...")

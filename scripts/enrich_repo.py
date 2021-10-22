@@ -1,20 +1,20 @@
 import logging
+import os
 import subprocess
 
 import requests
-import os
 from db import (
     get_all_repos_given_clone_info,
     get_all_repos_without_clone_info,
     update_clone_info,
 )
-from settings.settings import ELASTIC_URL, GITHUB_OAUTH_TOKEN, TOKENS, HOME_PATH
+from settings.settings import ELASTIC_URL, HOME_PATH, TOKENS
 from tqdm import tqdm
 
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
 # the github token
-RETRY_KEYS = ["raise", "exception", "exceptions", "RetryError", "rate limit exceeded"]
+EXCEPTIONS_KEYS = ["IntegrityError", "ArchiveError"]
 ERROR_KEYS = ["Error", "error", "fatal"]
 
 # This counter is to select which token will be used at the time
@@ -29,23 +29,14 @@ logging.basicConfig(
     datefmt=datetime_format,
 )
 
+
 def move_archive():
-    destination_path = './.perceval/'
+    destination_path = "./.perceval/"
     if not os.path.exists(destination_path):
         os.makedirs(destination_path)
     logging.info("Archiving here due to disk space")
     command = f"cp -r {HOME_PATH}/* {destination_path} && rm -rf {HOME_PATH}"
     os.system(command)
-
-
-def get_token(next_token: bool = False) -> str:
-    if next_token:
-        global use_token_counter
-        if use_token_counter < len(TOKENS):
-            use_token_counter += 1
-        if use_token_counter >= len(TOKENS):
-            use_token_counter = 0
-    return TOKENS[use_token_counter]
 
 
 def enrich_git(owner: str, repository: str) -> str:
@@ -71,17 +62,15 @@ def enrich_git(owner: str, repository: str) -> str:
     )
     log = result.stdout + result.stderr
     print(log)
+    logging.info(f"Finished Git for {owner}/{repository}")
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
-def enrich_github(owner: str, repository: str) -> str:
+def enrich_github(owner: str, repository: str, token: str) -> str:
     # Produce github and github_raw indexes from GitHub issues and prs
-    # Do not use '--sleep-for-rate' in this case because we want to see the error
-    next_token = False
     repeat = 0
     logging.info(f"Enriching repo with Github {owner}/{repository}")
     while True:
-        token = get_token(next_token=next_token)
         logging.info(f"Using token {token} to retrieve info from {owner}/{repository}")
         logging.info(f"In loop for {owner}/{repository} {repeat} times")
         result = subprocess.run(
@@ -101,24 +90,23 @@ def enrich_github(owner: str, repository: str) -> str:
                 repository,
                 "-t",
                 token,
+                "--sleep-for-rate",
             ],
             capture_output=True,
             text=True,
         )
         log = result.stdout + result.stderr
         print(log)
-        if any(error in log for error in RETRY_KEYS):
-            next_token = True
-            repeat += 1
-        else:
+        if not any(error in log for error in EXCEPTIONS_KEYS):
+            logging.info(f"Finished Github for {owner}/{repository}")
             break
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
-def enrich_repo(owner: str, repository: str) -> None:
+def enrich_repo(owner: str, repository: str, token: str) -> None:
     try:
         error_git = enrich_git(owner=owner, repository=repository)
-        error_github = enrich_github(owner=owner, repository=repository)
+        error_github = enrich_github(owner=owner, repository=repository, token=token)
         full_error = error_git + error_github
         if full_error != "":
             logging.info(f"Error for {owner}/{repository}")
@@ -151,7 +139,10 @@ if __name__ == "__main__":
     if running_es:
         repos = get_all_repos_given_clone_info() + get_all_repos_without_clone_info()
         print("Enrich some repos..")
+        tokens = TOKENS
         for repo in tqdm(repos):
             owner, repository = repo.full_name.split("/")
-            error = enrich_repo(owner, repository)
+            token = tokens.pop(0)
+            tokens.append(token)
+            error = enrich_repo(owner, repository, token)
             update_clone_info(repo.id, error=error)
