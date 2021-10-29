@@ -49,6 +49,7 @@ class Repository(Base):
     watchers = Column(Integer)
     default_branch = Column(String)
     score = Column(Float)
+    to_download = Column(Boolean)
 
     def __init__(self, **kwargs):
         self.id = kwargs.get("id")
@@ -92,6 +93,7 @@ class Repository(Base):
         self.watchers = kwargs.get("watchers")
         self.default_branch = kwargs.get("default_branch")
         self.score = kwargs.get("score")
+        self.to_download = kwargs.get("to_download", True)
 
 
 class CloneInfo(Base):

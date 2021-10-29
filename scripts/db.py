@@ -75,6 +75,7 @@ def get_all_repos_given_clone_info(session: Session = None) -> list:
         .join(CloneInfo)
         .filter(CloneInfo.repo_id == Repository.id)
         .filter((CloneInfo.updated_at < one_month_ago) | (CloneInfo.error != ""))
+        .filter(Repository.to_download == True)
         .all()
     )
 
@@ -88,6 +89,7 @@ def get_all_repos_without_clone_info(session: Session = None) -> list:
     result = (
         session.query(Repository)
         .filter((~exists().where(Repository.id == CloneInfo.repo_id)))
+        .filter(Repository.to_download == True)
         .all()
     )
 
