@@ -14,6 +14,7 @@ from tqdm import tqdm
 # Strings that represent any error in the debug info of
 # the execution of p2o.py and we need to replace
 # the github token
+EXCEPTION_KEYS = ["ArchiveError", "Client Error", "ConnectionError", "MaxRetryError"]
 ERROR_KEYS = ["error", "fatal"]
 
 datetime_format = "%d-%b-%y %H:%M:%S"
@@ -60,33 +61,39 @@ def enrich_github(owner: str, repository: str) -> str:
     logging.info(f"Enriching repo with Github {owner}/{repository}")
     tokens = TOKENS
     path = f"{os.getcwd()}/.perceval/archives/{owner}/{repository}"
-    result = subprocess.run(
-        [
-            "p2o.py",
-            "--enrich",
-            "--index",
-            "github_raw",
-            "--index-enrich",
-            "github",
-            "-e",
-            ELASTIC_URL,
-            "--no_incremental",
-            "--debug",
-            "github",
-            owner,
-            repository,
-            "-t",
-            *tokens,
-            "--sleep-for-rate",
-            "--archive-path",
-            path,
-        ],
-        capture_output=True,
-        text=True,
-    )
-    log = result.stdout + result.stderr
-    logging.info(log)
-    logging.info(f"Finished Github for {owner}/{repository}")
+    repeat = 0
+    while True:
+        result = subprocess.run(
+            [
+                "p2o.py",
+                "--enrich",
+                "--index",
+                "github_raw",
+                "--index-enrich",
+                "github",
+                "-e",
+                ELASTIC_URL,
+                "--no_incremental",
+                "--debug",
+                "github",
+                owner,
+                repository,
+                "-t",
+                *tokens,
+                "--sleep-for-rate",
+                "--archive-path",
+                path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        log = result.stdout + result.stderr
+        logging.info(log)
+        if not any(error in log for error in EXCEPTION_KEYS):
+            logging.info(f"Finished Github for {owner}/{repository}")
+            break
+        repeat += 1
+        logging.info(f"In repeat for {owner}/{repository} for {repeat} times")
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
