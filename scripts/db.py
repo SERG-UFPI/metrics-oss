@@ -110,3 +110,15 @@ def update_clone_info(repo_id: int, error: str = "") -> None:
         info.updated_at = datetime.datetime.utcnow()
 
         commit_session(session)
+
+
+def get_cloned_repos() -> list:
+    session = create_connection()
+    result = (
+        session.query(Repository)
+        .join(CloneInfo)
+        .filter(CloneInfo.repo_id == Repository.id)
+        .all()
+    )
+
+    return result
