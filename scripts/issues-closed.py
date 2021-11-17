@@ -1,7 +1,7 @@
 import os
 
 from common import get_metric
-from db import get_all_repositories, get_cloned_repos
+from db import get_cloned_repos
 from files import save_file
 from tqdm import tqdm
 
@@ -78,5 +78,5 @@ def generate_metric(repos: list) -> None:
 
 
 if __name__ == "__main__":
-    repos = get_all_repositories()
+    repos = get_cloned_repos()
     generate_metric(repos)
