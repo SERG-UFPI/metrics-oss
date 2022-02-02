@@ -1,6 +1,6 @@
 # Dataset de Repositórios OSS (Open Source Software)
 
-Este repositório contém scripts python para montagem de um dataset de repositórios OSS utilizando para tanto a [API do Github](https://docs.github.com/en/rest)
+Este repositório contém scripts Python para montagem de um dataset de repositórios OSS utilizando para tanto a [API do GitHub](https://docs.github.com/en/rest).
 
 Foi feito utilizando as seguintes tecnologias:
 
@@ -12,43 +12,84 @@ Foi feito utilizando as seguintes tecnologias:
 
 ## Configuração
 
-Verifique se você tem o SQLite3 instalado na sua máquina local. Caso contrário, siga o passo a passo para instalação [aqui](https://www.servermania.com/kb/articles/install-sqlite/)
+Será necessário instalar alguns pacotes e realizar alguns procedimentos na sua máquina local para a configuração, como abordado a seguir.
 
-Verifique se você tem a versão 3.8 instalada do Python na sua máquina local. Caso não tenha, siga este [tutorial](https://tutorial.djangogirls.org/en/installation/#python)
+### SQLite3
 
-Se tudo estiver ok, teste estes dois comandos em seu terminal e veja se tem um output parecido:
-
+Verifique se você tem o SQLite3 instalado utilizando o comando a seguir:
 ```sh
-$ python --version
->>> Python 3.8.0
+$ sqlite3 -version
+>>> 3.31.1 2020-01-27 [...]
+```
+Note que para executar tal comando, o SQLite3 deve estar no PATH do sistema. Caso o comando não retorne uma resposta com  a versão do SQLite3, siga o passo a passo para instalação [aqui](https://www.servermania.com/kb/articles/install-sqlite/).
 
-$ pip --version
->>> pip 21.0.1 from ~/.asdf/installs/python/3.8.0/lib/python3.8/site-packages/pip (python 3.8)
+### Python 3.8
+
+Verifique se você tem a versão 3.8 do Python instalada utilizando o comando a seguir:
+```sh
+$ python3 --version
+>>> Python 3.8.10
 ```
 
-Após as checagens, crie uma virtualenv na pasta raiz do projeto seguindo este [tutorial](https://tutorial.djangogirls.org/en/django_installation/#virtual-environment). Crie com o nome `env` ou `venv` e após a conclusão, ative a virtualenv.
+Caso o comando não possua uma saída semelhante, é provavel que seja necessária a instalação do Python seguindo este [tutorial](https://tutorial.djangogirls.org/en/installation/#python).
 
-Com a virtualenv ativada, execute o seguinte comando:
+### pip
+
+Verifique se você tem o pip instalado executando o comando:
+```sh
+$ pip --version
+>>> pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)
+```
+Caso não tenha instalado, siga os passos descritos [aqui](https://pip.pypa.io/en/stable/installation/#installation).
+
+## Virtualenv
+Crie uma Virtualenv na pasta raiz do projeto executando o comando:
+```sh
+$ python3 -m venv env
+```
+Onde `env` é o nome dado para a Virtualenv. Escolha o nome `env` ou `venv`.
+
+Em seguida, ative a Virtualenv criada.
+
+#### Linux e MacOS
+
+Execute
+```sh
+$ source env/bin/activate
+```
+ou
+```sh
+$ . env/bin/activate
+```
+
+#### Windows
+Execute
 
 ```sh
-pip install -r requirements.txt -r requirments_dev.txt
+> env\Scripts\activate
+```
+
+Lembre-se que `env` é o nome escolhido anteriormente para sua Virtualenv.
+
+### Instalando requisitos
+Com a Virtualenv ativada, execute o seguinte comando:
+
+```sh
+$ pip install -r requirements.txt -r requirements_dev.txt
 ```
 
 Logo todas as dependencias para o projeto serão instaladas
 
-Para finalizar, copie o `.env.sample` e cole com o nome `.env` na pasta raiz do projeto e preencha com a informação que está faltando
+### Variáveis de ambiente do projeto
 
-Para a `GITHUB_OAUTH_TOKEN` siga estes [passos](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+Para finalizar, copie o `.env.sample` e cole com o nome `.env` na pasta raiz do projeto e preencha a variável `GITHUB_OAUTH_TOKEN`. Você pode colocar um ou mais tokens do GitHub separados por vírgula. Para obter este token, siga estes [passos](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
 
-Se for utilizar mais de um token, preencha separado por virgulas como no exemplo do arquivo `.env.sample`. Caso contrário, apenas coloque o token.
 
 ## Atualizando dependências
 
-Com a virtualenv ativada, primeiro altere ou adicione a dependência e a versão que deseja instalar/atualizar no arquivo `requirments.in`
+Com a Virtualenv ativada, primeiro altere ou adicione a dependência e a versão que deseja instalar/atualizar no arquivo `requirments.in`. Após isso, rode o comando `pip-compile --output-file=requirements.txt requirements.in` no diretório raiz.
 
-Após isso, rode o comando no diretório raiz: `pip-compile --output-file=requirements.txt requirements.in`
-
-## Arquivos
+## Arquivos do projeto
 
 Uma simples explicação de cada arquivo contido no diretório `scripts`:
 
@@ -63,9 +104,12 @@ Uma simples explicação de cada arquivo contido no diretório `scripts`:
 
 ## Utilizando o projeto
 
-Se tudo estiver ok com a sua instalação você poderá utilizar os seguintes scripts:
+Se a instalação foi feita com sucesso, você poderá executar os scripts do projeto.
 
-- Para buscar e salvar repositórios dado uma query de busca, rode este comando:
-`python scripts/query_repo.py`
-Irá aparecer um prompt com um texto de apoio de como deve ser a query de busca
-Para mais informações sobre as querys de busca de repositórios, siga a [documentação](https://docs.github.com/en/rest/reference/search)
+### `query_repo.py`
+
+Script ara buscar e salvar repositórios dado uma query de busca. Para utilizar, execute o  comando `python scripts/query_repo.py`. Irá aparecer um prompt com um texto de apoio de como deve ser a query de busca.
+
+Para mais informações sobre as querys de busca de repositórios, siga a [documentação](https://docs.github.com/en/rest/reference/search) da API do GitHub.
+
+Os dados obtidos pelo script são salvos em um banco de dados SQLite3, chamado `db.sqlite3`.
