@@ -100,10 +100,12 @@ def enrich_github(owner: str, repository: str) -> str:
 
 def enrich_repo(owner: str, repository: str, skip_github: bool) -> None:
     try:
+        full_error = ""
         error_git = enrich_git(owner=owner, repository=repository)
+        full_error += error_git
         if (skip_github == False):
             error_github = enrich_github(owner=owner, repository=repository)
-        full_error = error_git + error_github
+            full_error += error_github
         return full_error
     except Exception as e:
         logging.info(f"Error {e}")
