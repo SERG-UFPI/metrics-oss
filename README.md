@@ -102,14 +102,47 @@ Uma simples explicação de cada arquivo contido no diretório `scripts`:
 - `projects.py`: Gera o arquivo `projects.json` para o GrimoireLab
 - `query_repo.py`: Script que inicia a busca dos repositórios
 
-## Utilizando o projeto
-
-Se a instalação foi feita com sucesso, você poderá executar os scripts do projeto.
-
-### `query_repo.py`
-
-Script ara buscar e salvar repositórios dado uma query de busca. Para utilizar, execute o  comando `python scripts/query_repo.py`. Irá aparecer um prompt com um texto de apoio de como deve ser a query de busca.
+## Montando um dataset com o `query_repo.py`
+Utilizaremos o script `query_repo.py`, que possui o objetivo de buscar e salvar repositórios dado uma query de busca. Para iniciar, execute o  comando `python scripts/query_repo.py`. Irá aparecer um prompt com um texto de apoio de como deve ser a query de busca.
 
 Para mais informações sobre as querys de busca de repositórios, siga a [documentação](https://docs.github.com/en/rest/reference/search) da API do GitHub.
 
 Os dados obtidos pelo script são salvos em um banco de dados SQLite3, chamado `db.sqlite3`.
+
+## Enriquecendo o dataset com o `enrich_repo.py`
+Algumas ferramentas serão utilizadas para realizar o enriquecimento do dataset básico criado com o `query_repo.py`. São elas:
+* Elasticsearch
+* Kibana
+
+Os passos a serem executados para configuração fazem com que ambos requerimentos sejam instalados em um container **Docker**.
+
+### Instalação do Docker
+Instale o Docker Engine seguindo [os passos descritos aqui](https://docs.docker.com/engine/install/ubuntu/). Em seguida, faça a instalação do Docker Compose seguindo [estes passos](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04-pt) (para Linux) ou [estes passos](https://stackoverflow.com/a/29728993) (para Windows).
+
+### Realizando algumas configurações e iniciando o enriquecimento
+Com o Docker devidamente instalado, siga os seguintes passos:
+* Crie uma pasta que irá conter os dados do Elasticsearch, com o nome `elasticsearch-data`;
+* Dê permissão a esta pasta usando executando o comando:
+```sh
+sudo chown -R 1000:1000 elasticsearch-data/
+```
+* Inicie o container Docker com o seguinte comando:
+```sh
+sudo docker-compose up -d
+```
+* Inicie o enriquecimento executando o script `enrich_repo.py`a partir da raiz do projeto, como a seguir:
+```sh
+python scripts/enrich_repo.py
+```
+e o processo deverá ser iniciado. Note que o enriquecimento será realizado com informações obtidas do repositório Git e do GitHub. Para enriquecer informações somente do repositório Git, execute:
+```sh
+python scripts/enrich_repo.py --skip-github
+```
+* Acompanhe os logs gerados em uma nova janela/aba do seu terminal executando
+```sh
+tail -f enrich_repos_2.log
+```
+
+> ⚠️ Atenção: todos os procedimentos especificados acima devem ser feitos com a virtualenv ativada.
+
+Aguarde o enriquecimento ser completado. Essa operação pode levar muito tempo, dependendo do tamanho dos repositórios a serem analisados e da quantidade de repositórios no `db.sqlite3` obtidos com o `query-repo.py`.
