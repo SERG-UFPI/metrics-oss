@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import sys
 
 import requests
 from db import (
@@ -97,10 +98,11 @@ def enrich_github(owner: str, repository: str) -> str:
     return log if any(error in log for error in ERROR_KEYS) else ""
 
 
-def enrich_repo(owner: str, repository: str) -> None:
+def enrich_repo(owner: str, repository: str, skip_github: bool) -> None:
     try:
         error_git = enrich_git(owner=owner, repository=repository)
-        error_github = enrich_github(owner=owner, repository=repository)
+        if (skip_github == False):
+            error_github = enrich_github(owner=owner, repository=repository)
         full_error = error_git + error_github
         return full_error
     except Exception as e:
@@ -125,11 +127,18 @@ if __name__ == "__main__":
     2 - Verify if there is a elasticsearch instance running
     3 - Use the func to enrich them and save to elasticsearch
     """
+    skip_github = False
     running_es = verify_elasticsearch()
     if running_es:
         repos = get_all_repos_given_clone_info() + get_all_repos_without_clone_info()
-        print("Enrich some repos..")
+        print("Enrich some repos...")
+        if (len(sys.argv) > 1):
+            if (sys.argv[1] == '--skip-github'):
+                print('Skipping GitHub, enriching Git only.')
+                skip_github = True
+            else:
+                print('Invalid argument \"' + sys.argv[1], '\". Continuing the enrichment...')
         for repo in tqdm(repos):
             owner, repository = repo.full_name.split("/")
-            error = enrich_repo(owner, repository)
+            error = enrich_repo(owner, repository, skip_github)
             update_clone_info(repo.id, error=error)
