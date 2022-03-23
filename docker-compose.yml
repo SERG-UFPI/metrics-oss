@@ -19,7 +19,7 @@ services:
     cap_add:
       - IPC_LOCK
     volumes:
-      - $PWD/elastic-data:/usr/share/elasticsearch/data
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
       - 9300:9300

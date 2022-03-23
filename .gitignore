@@ -144,6 +144,6 @@ tmp/
 # Archive from perceval
 .perceval
 
-elastic-data/
+elasticsearch-data/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
